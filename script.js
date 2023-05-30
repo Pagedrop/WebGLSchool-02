@@ -32,7 +32,7 @@ class App3 {
       far: 1000,
       x: 0.0,
       y: 2.0,
-      z: 10.0,
+      z: 20.0,
       lookAt: new THREE.Vector3(0.0, 0.0, 0.0),
     };
   }
@@ -97,7 +97,9 @@ class App3 {
     this.controls;
     this.axesHelper;
     this.directionalLightHelper;
-    this.fun;
+    this.modelBase;
+    this.modelBody;
+    this.modelPanel;
     this.composer;
     this.renderPass;
     this.unrealBloomPass;
@@ -155,13 +157,27 @@ class App3 {
   load() {
     return new Promise((resolve) => {
       // モデルのパス
-      const modelPath = "./assets/fun000.glb";
-      // const modelPath = "./assets/PrimaryIonDrive.glb";
+      const modelBase = "./assets/fun001-base.glb";
+      const modelBody = "./assets/fun001-body.glb";
+      const modelPanel = "./assets/fun001-panel.glb";
+      // const modelBase = "./assets/PrimaryIonDrive.glb";
       const loader = new GLTFLoader();
-      this.model = null;
-      loader.load(modelPath, (gltf) => {
-        this.model = gltf.scene;
-        this.model.scale.set(10.0, 10.0, 10.0);
+      this.modelBase = null;
+      loader.load(modelBase, (gltf) => {
+        this.modelBase = gltf.scene;
+        this.modelBase.scale.set(10.0, 10.0, 10.0);
+        // Promise を解決
+        // resolve();
+      });
+      loader.load(modelBody, (gltf) => {
+        this.modelBody = gltf.scene;
+        this.modelBody.scale.set(10.0, 10.0, 10.0);
+        // Promise を解決
+        // resolve();
+      });
+      loader.load(modelPanel, (gltf) => {
+        this.modelPanel = gltf.scene;
+        this.modelPanel.scale.set(10.0, 10.0, 10.0);
         // Promise を解決
         resolve();
       });
@@ -196,20 +212,24 @@ class App3 {
       App3.CAMERA_PARAM.near,
       App3.CAMERA_PARAM.far
     );
-    this.camera.position.set(-5, 2.5, -3.5);
+    this.camera.position.set(
+      App3.CAMERA_PARAM.x,
+      App3.CAMERA_PARAM.y,
+      App3.CAMERA_PARAM.z
+    );
     this.camera.lookAt(App3.CAMERA_PARAM.lookAt);
 
     // ディレクショナルライト
-    this.directionalLight = new THREE.DirectionalLight(
-      App3.DIRECTIONAL_LIGHT_PARAM.color,
-      App3.DIRECTIONAL_LIGHT_PARAM.intensity
-    );
-    this.directionalLight.position.set(
-      App3.DIRECTIONAL_LIGHT_PARAM.x,
-      App3.DIRECTIONAL_LIGHT_PARAM.y,
-      App3.DIRECTIONAL_LIGHT_PARAM.z
-    );
-    this.scene.add(this.directionalLight);
+    // this.directionalLight = new THREE.DirectionalLight(
+    //   App3.DIRECTIONAL_LIGHT_PARAM.color,
+    //   App3.DIRECTIONAL_LIGHT_PARAM.intensity
+    // );
+    // this.directionalLight.position.set(
+    //   App3.DIRECTIONAL_LIGHT_PARAM.x,
+    //   App3.DIRECTIONAL_LIGHT_PARAM.y,
+    //   App3.DIRECTIONAL_LIGHT_PARAM.z
+    // );
+    // this.scene.add(this.directionalLight);
 
     // アンビエントライト
     this.ambientLight = new THREE.AmbientLight(
@@ -225,7 +245,9 @@ class App3 {
     this.material = new THREE.MeshPhongMaterial(App3.MATERIAL_PARAM);
 
     // 3dmodelをシーンに追加
-    this.scene.add(this.model);
+    this.scene.add(this.modelBase);
+    this.scene.add(this.modelBody);
+    this.scene.add(this.modelPanel);
 
     // OrbitControls
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
@@ -235,7 +257,7 @@ class App3 {
      */
     const params = {
       exposure: 2,
-      bloomStrength: 4.0,
+      bloomStrength: 1.5,
       bloomThreshold: 0,
       bloomRadius: 0,
     };
@@ -254,6 +276,7 @@ class App3 {
     this.unrealBloomPass.radius = params.bloomRadius;
     this.composer.addPass(this.unrealBloomPass);
     this.unrealBloomPass.renderToScreen = true;
+    this.renderer.toneMappingExposure = Math.pow(params.exposure, 4.0);
 
     // ヘルパー
     // axesHelper
@@ -261,45 +284,35 @@ class App3 {
     this.axesHelper = new THREE.AxesHelper(axesBarLength);
     this.scene.add(this.axesHelper);
 
-    // DirectionalLightHelper
-    const directionalLightHelperSize = 1;
-    this.directionalLightHelper = new THREE.DirectionalLightHelper(
-      this.directionalLight,
-      directionalLightHelperSize
-    );
-    this.scene.add(this.directionalLightHelper);
-
     // GUIデバッグ
     this.gui = new GUI();
     const lightGUIGroupe = this.gui.addFolder("Light");
-    lightGUIGroupe
-      .add(this.directionalLight, "visible")
-      .name("DirectionalLight");
     lightGUIGroupe.add(this.ambientLight, "visible").name("AmbientLight");
     const helperGUIGroupe = this.gui.addFolder("Helper");
     helperGUIGroupe.add(this.axesHelper, "visible").name("AxesHelper");
-    helperGUIGroupe
-      .add(this.directionalLightHelper, "visible")
-      .name("DirectionalLightHelper");
+    helperGUIGroupe;
+
+    const pointLight = new THREE.PointLight(0xffffff, 1);
+    // this.scene.add(pointLight);
 
     const gui = new GUI();
 
-    gui.add(params, "exposure", 0.1, 2).onChange(function (value) {
+    gui.add(params, "exposure", 0.1, 2).onChange((value) => {
       this.renderer.toneMappingExposure = Math.pow(value, 4.0);
     });
 
-    gui.add(params, "bloomThreshold", 0.0, 1.0).onChange(function (value) {
+    gui.add(params, "bloomThreshold", 0.0, 1.0).onChange((value) => {
       this.unrealBloomPass.threshold = Number(value);
     });
 
-    gui.add(params, "bloomStrength", 0.0, 3.0).onChange(function (value) {
+    gui.add(params, "bloomStrength", 0.0, 3.0).onChange((value) => {
       this.unrealBloomPass.strength = Number(value);
     });
 
     gui
       .add(params, "bloomRadius", 0.0, 1.0)
       .step(0.01)
-      .onChange(function (value) {
+      .onChange((value) => {
         this.unrealBloomPass.radius = Number(value);
       });
   }
