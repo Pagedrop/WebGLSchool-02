@@ -66,7 +66,7 @@ class App3 {
    */
   static get AMBIENT_LIGHT_PARAM() {
     return {
-      color: 0xffffff,
+      color: 0x404040,
       intensity: 0.2,
     };
   }
@@ -155,13 +155,13 @@ class App3 {
   load() {
     return new Promise((resolve) => {
       // モデルのパス
-      const modelPath = "./assets/fun01.glb";
+      const modelPath = "./assets/fun000.glb";
       // const modelPath = "./assets/PrimaryIonDrive.glb";
       const loader = new GLTFLoader();
       this.model = null;
       loader.load(modelPath, (gltf) => {
         this.model = gltf.scene;
-        this.model.scale.set(100.0, 100.0, 100.0);
+        this.model.scale.set(10.0, 10.0, 10.0);
         // Promise を解決
         resolve();
       });
@@ -234,8 +234,8 @@ class App3 {
      * コンポーザー
      */
     const params = {
-      exposure: 0.1,
-      bloomStrength: 0.3,
+      exposure: 2,
+      bloomStrength: 4.0,
       bloomThreshold: 0,
       bloomRadius: 0,
     };
