@@ -86,9 +86,14 @@ class App3 {
     this.modelBody;
     this.modelPanel;
     this.groupPanel;
+    this.groupbody;
     this.composer;
     this.renderPass;
     this.unrealBloomPass;
+    this.swingCount = {
+      vertical: 0,
+      horizontal: 0,
+    };
 
     this.isDown = false;
 
@@ -144,25 +149,28 @@ class App3 {
     return new Promise((resolve) => {
       // モデルのパス
       const modelBase = "./assets/fun001-base.glb";
-      const modelBody = "./assets/fun001-body.glb";
+      const modelBody = "./assets/fun001-body-sub.glb";
       const modelPanel = "./assets/fun001-panel-sub.glb";
       // const modelBase = "./assets/PrimaryIonDrive.glb";
       const loader = new GLTFLoader();
       this.modelBase = null;
-      loader.load(modelBase, (gltf) => {
-        this.modelBase = gltf.scene;
-        this.modelBase.scale.set(10.0, 10.0, 10.0);
-      });
-      loader.load(modelBody, (gltf) => {
-        this.modelBody = gltf.scene;
-        this.modelBody.scale.set(10.0, 10.0, 10.0);
-      });
-      loader.load(modelPanel, (gltf) => {
-        this.modelPanel = gltf.scene;
-        this.modelPanel.scale.set(10.0, 10.0, 10.0);
-        // Promise を解決
-        resolve();
-      });
+      (async () => {
+        await loader.load(modelBase, (gltf) => {
+          this.modelBase = gltf.scene;
+          this.modelBase.scale.set(10.0, 10.0, 10.0);
+        });
+        await loader.load(modelBody, (gltf) => {
+          this.modelBody = gltf.scene;
+          this.modelBody.scale.set(10.0, 10.0, 10.0);
+          this.modelBody.position.y = 6.9;
+        });
+        await loader.load(modelPanel, (gltf) => {
+          this.modelPanel = gltf.scene;
+          this.modelPanel.scale.set(10.0, 10.0, 10.0);
+          // Promise を解決
+          resolve();
+        });
+      })();
     });
   }
 
@@ -219,13 +227,15 @@ class App3 {
     this.material = new THREE.MeshPhongMaterial(App3.MATERIAL_PARAM);
 
     this.groupPanel = new THREE.Group();
+    this.groupBody = new THREE.Group();
     // 3dmodelをシーンに追加
-    // this.scene.add(this.modelBase);
-    this.scene.add(this.modelBody);
+    this.scene.add(this.modelBase);
     this.groupPanel.add(this.modelPanel);
     this.groupPanel.position.y = 7.35;
     this.groupPanel.position.z = 0.9;
-    this.scene.add(this.groupPanel);
+    this.groupBody.add(this.modelBody);
+    this.groupBody.add(this.groupPanel);
+    this.scene.add(this.groupBody);
 
     // OrbitControls
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
@@ -291,14 +301,15 @@ class App3 {
         this.unrealBloomPass.radius = Number(value);
       });
 
-    gui.add(this.groupPanel.position, "x", 0, 10, 0.01).name("translateX");
-    gui.add(this.groupPanel.position, "y", 0, 10, 0.01).name("translateY");
-    gui.add(this.groupPanel.position, "z", 0, 10, 0.01).name("translateZ");
+    gui.add(this.modelBody.position, "x", 0, 10, 0.01).name("translateX");
+    gui.add(this.modelBody.position, "y", 0, 10, 0.01).name("translateY");
+    gui.add(this.modelBody.position, "z", 0, 10, 0.01).name("translateZ");
   }
 
   /**
    * 描画処理
    */
+
   render() {
     requestAnimationFrame(this.render);
 
@@ -306,6 +317,8 @@ class App3 {
       this.box.rotation.y += 0.02;
     }
     this.modelPanel.rotation.z += 0.02;
+
+    this.groupBody.rotation.y = Math.sin(++this.swingCount.horizontal / 100);
 
     this.controls.update();
 
