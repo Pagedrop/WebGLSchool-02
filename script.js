@@ -85,6 +85,7 @@ class App3 {
     this.modelBase;
     this.modelBody;
     this.modelPanel;
+    this.groupAll;
     this.groupPanel;
     this.groupbody;
     this.composer;
@@ -204,7 +205,7 @@ class App3 {
       App3.CAMERA_PARAM.y,
       App3.CAMERA_PARAM.z
     );
-    this.camera.lookAt(App3.CAMERA_PARAM.lookAt);
+    this.camera.lookAt(0, 0, 0);
 
     // アンビエントライト
     this.ambientLight = new THREE.AmbientLight(
@@ -223,16 +224,19 @@ class App3 {
     // マテリアル
     this.material = new THREE.MeshPhongMaterial(App3.MATERIAL_PARAM);
 
+    this.groupAll = new THREE.Group();
     this.groupPanel = new THREE.Group();
     this.groupBody = new THREE.Group();
     // 3dmodelをシーンに追加
-    this.scene.add(this.modelBase);
     this.groupPanel.add(this.modelPanel);
     this.groupPanel.position.y = 7.35;
     this.groupPanel.position.z = 0.9;
     this.groupBody.add(this.modelBody);
     this.groupBody.add(this.groupPanel);
-    this.scene.add(this.groupBody);
+    this.groupAll.add(this.groupBody);
+    this.groupAll.add(this.modelBase);
+    this.groupAll.position.y = -3;
+    this.scene.add(this.groupAll);
 
     // OrbitControls
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
@@ -242,7 +246,7 @@ class App3 {
      */
     const params = {
       exposure: 2,
-      bloomStrength: 1.5,
+      bloomStrength: 1.7,
       bloomThreshold: 0,
       bloomRadius: 0,
     };
@@ -265,17 +269,17 @@ class App3 {
 
     // ヘルパー
     // axesHelper
-    const axesBarLength = 5.0;
-    this.axesHelper = new THREE.AxesHelper(axesBarLength);
-    this.scene.add(this.axesHelper);
+    // const axesBarLength = 5.0;
+    // this.axesHelper = new THREE.AxesHelper(axesBarLength);
+    // this.scene.add(this.axesHelper);
 
     // GUIデバッグ
     this.gui = new GUI();
     const lightGUIGroupe = this.gui.addFolder("Light");
     lightGUIGroupe.add(this.ambientLight, "visible").name("AmbientLight");
-    const helperGUIGroupe = this.gui.addFolder("Helper");
-    helperGUIGroupe.add(this.axesHelper, "visible").name("AxesHelper");
-    helperGUIGroupe;
+    // const helperGUIGroupe = this.gui.addFolder("Helper");
+    // helperGUIGroupe.add(this.axesHelper, "visible").name("AxesHelper");
+    // helperGUIGroupe;
 
     const gui = new GUI();
 
