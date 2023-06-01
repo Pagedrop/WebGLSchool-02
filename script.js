@@ -90,10 +90,7 @@ class App3 {
     this.composer;
     this.renderPass;
     this.unrealBloomPass;
-    this.swingCount = {
-      vertical: 0,
-      horizontal: 0,
-    };
+    this.swing = 0;
 
     this.isDown = false;
 
@@ -318,7 +315,7 @@ class App3 {
     }
     this.modelPanel.rotation.z += 0.02;
 
-    this.groupBody.rotation.y = Math.sin(++this.swingCount.horizontal / 100);
+    this.groupBody.rotation.y = Math.sin(++this.swing / 100);
 
     this.controls.update();
 
