@@ -143,32 +143,33 @@ class App3 {
   /**
    *  アセットのロード
    */
+
   load() {
-    return new Promise((resolve) => {
-      // モデルのパス
-      const modelBase = "./assets/fun001-base.glb";
-      const modelBody = "./assets/fun001-body-sub.glb";
-      const modelPanel = "./assets/fun001-panel-sub.glb";
-      // const modelBase = "./assets/PrimaryIonDrive.glb";
-      const loader = new GLTFLoader();
-      this.modelBase = null;
-      (async () => {
-        await loader.load(modelBase, (gltf) => {
-          this.modelBase = gltf.scene;
-          this.modelBase.scale.set(10.0, 10.0, 10.0);
-        });
-        await loader.load(modelBody, (gltf) => {
-          this.modelBody = gltf.scene;
-          this.modelBody.scale.set(10.0, 10.0, 10.0);
-          this.modelBody.position.y = 6.9;
-        });
-        await loader.load(modelPanel, (gltf) => {
-          this.modelPanel = gltf.scene;
-          this.modelPanel.scale.set(10.0, 10.0, 10.0);
-          // Promise を解決
-          resolve();
-        });
-      })();
+    const modelBase = "./assets/fun001-base.glb";
+    const modelBody = "./assets/fun001-body-sub.glb";
+    const modelPanel = "./assets/fun001-panel-sub.glb";
+    // const modelBase = "./assets/PrimaryIonDrive.glb";
+    const loader = new GLTFLoader();
+    this.modelBase = null;
+    const modelLoader = (url) => {
+      return new Promise((resolve, reject) => {
+        loader.load(url, (data) => resolve(data), null, reject);
+      });
+    };
+    return new Promise(async (resolve) => {
+      const obj1 = await modelLoader(modelBase);
+      this.modelBase = obj1.scene;
+      this.modelBase.scale.set(10.0, 10.0, 10.0);
+
+      const obj2 = await modelLoader(modelBody);
+      this.modelBody = obj2.scene;
+      this.modelBody.scale.set(10.0, 10.0, 10.0);
+
+      const obj3 = await modelLoader(modelPanel);
+      this.modelPanel = obj3.scene;
+      this.modelPanel.scale.set(10.0, 10.0, 10.0);
+
+      await resolve();
     });
   }
 
@@ -229,6 +230,9 @@ class App3 {
     this.groupBody = new THREE.Group();
     // 3dmodelをシーンに追加
     this.groupPanel.add(this.modelPanel);
+    this.modelBody.scale.set(10.0, 10.0, 10.0);
+    this.modelBody.position.y = 6.9;
+    this.modelPanel.scale.set(10.0, 10.0, 10.0);
     this.groupPanel.position.y = 7.35;
     this.groupPanel.position.z = 0.9;
     this.groupBody.add(this.modelBody);
@@ -237,6 +241,7 @@ class App3 {
     this.groupAll.add(this.modelBase);
     this.groupAll.position.y = -3;
     this.scene.add(this.groupAll);
+    this.modelBase.scale.set(10.0, 10.0, 10.0);
 
     // OrbitControls
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
