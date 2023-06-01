@@ -75,11 +75,29 @@ body {
   width: 0%;
   background-color: #fff;
 }
-@media screen and (min-width: 1024px) {
+@media screen and (max-width: 1024px) {
   .wrap {
     display: block;
   }
-  .spCtl {
-    display: none;
+  .ctl {
+    width: 240px;
+    bottom: 120px;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0 auto;
+  }
+  .barWrap {
+    width: 200px;
+    display: block;
+    text-align: center;
+    position: absolute;
+    color: #fff;
+    font-size: 1.2rem;
+    bottom: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .runawayBar {
+    margin-left: 0;
   }
 }
