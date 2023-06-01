@@ -49,19 +49,6 @@ class App3 {
   }
 
   /**
-   * ディレクショナルライト定義の定数
-   */
-  static get DIRECTIONAL_LIGHT_PARAM() {
-    return {
-      color: 0xffffff,
-      intensity: 1.0,
-      x: 2.0,
-      y: 2.0,
-      z: 2.0,
-    };
-  }
-
-  /**
    * アンビエントライト定義の定数
    */
   static get AMBIENT_LIGHT_PARAM() {
@@ -89,17 +76,16 @@ class App3 {
     this.scene;
     this.camera;
     this.gui;
-    this.directionalLight;
     this.ambientLight;
     this.material;
     this.boxGeometry;
     this.box;
     this.controls;
     this.axesHelper;
-    this.directionalLightHelper;
     this.modelBase;
     this.modelBody;
     this.modelPanel;
+    this.groupPanel;
     this.composer;
     this.renderPass;
     this.unrealBloomPass;
@@ -159,21 +145,17 @@ class App3 {
       // モデルのパス
       const modelBase = "./assets/fun001-base.glb";
       const modelBody = "./assets/fun001-body.glb";
-      const modelPanel = "./assets/fun001-panel.glb";
+      const modelPanel = "./assets/fun001-panel-sub.glb";
       // const modelBase = "./assets/PrimaryIonDrive.glb";
       const loader = new GLTFLoader();
       this.modelBase = null;
       loader.load(modelBase, (gltf) => {
         this.modelBase = gltf.scene;
         this.modelBase.scale.set(10.0, 10.0, 10.0);
-        // Promise を解決
-        // resolve();
       });
       loader.load(modelBody, (gltf) => {
         this.modelBody = gltf.scene;
         this.modelBody.scale.set(10.0, 10.0, 10.0);
-        // Promise を解決
-        // resolve();
       });
       loader.load(modelPanel, (gltf) => {
         this.modelPanel = gltf.scene;
@@ -219,18 +201,6 @@ class App3 {
     );
     this.camera.lookAt(App3.CAMERA_PARAM.lookAt);
 
-    // ディレクショナルライト
-    // this.directionalLight = new THREE.DirectionalLight(
-    //   App3.DIRECTIONAL_LIGHT_PARAM.color,
-    //   App3.DIRECTIONAL_LIGHT_PARAM.intensity
-    // );
-    // this.directionalLight.position.set(
-    //   App3.DIRECTIONAL_LIGHT_PARAM.x,
-    //   App3.DIRECTIONAL_LIGHT_PARAM.y,
-    //   App3.DIRECTIONAL_LIGHT_PARAM.z
-    // );
-    // this.scene.add(this.directionalLight);
-
     // アンビエントライト
     this.ambientLight = new THREE.AmbientLight(
       App3.AMBIENT_LIGHT_PARAM.color,
@@ -238,16 +208,24 @@ class App3 {
     );
     this.scene.add(this.ambientLight);
 
+    // ポイントライト
+    const pointLight = new THREE.PointLight(0xffffff, 1);
+    // this.scene.add(pointLight);
+
     // ジオメトリ
     this.boxGeometry = new THREE.BoxGeometry(1.0, 1.0, 1.0);
 
     // マテリアル
     this.material = new THREE.MeshPhongMaterial(App3.MATERIAL_PARAM);
 
+    this.groupPanel = new THREE.Group();
     // 3dmodelをシーンに追加
-    this.scene.add(this.modelBase);
+    // this.scene.add(this.modelBase);
     this.scene.add(this.modelBody);
-    this.scene.add(this.modelPanel);
+    this.groupPanel.add(this.modelPanel);
+    this.groupPanel.position.y = 7.35;
+    this.groupPanel.position.z = 0.9;
+    this.scene.add(this.groupPanel);
 
     // OrbitControls
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
@@ -292,9 +270,6 @@ class App3 {
     helperGUIGroupe.add(this.axesHelper, "visible").name("AxesHelper");
     helperGUIGroupe;
 
-    const pointLight = new THREE.PointLight(0xffffff, 1);
-    // this.scene.add(pointLight);
-
     const gui = new GUI();
 
     gui.add(params, "exposure", 0.1, 2).onChange((value) => {
@@ -315,6 +290,10 @@ class App3 {
       .onChange((value) => {
         this.unrealBloomPass.radius = Number(value);
       });
+
+    gui.add(this.groupPanel.position, "x", 0, 10, 0.01).name("translateX");
+    gui.add(this.groupPanel.position, "y", 0, 10, 0.01).name("translateY");
+    gui.add(this.groupPanel.position, "z", 0, 10, 0.01).name("translateZ");
   }
 
   /**
@@ -326,6 +305,7 @@ class App3 {
     if (this.isDown === true) {
       this.box.rotation.y += 0.02;
     }
+    this.modelPanel.rotation.z += 0.02;
 
     this.controls.update();
 
