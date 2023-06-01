@@ -5,8 +5,6 @@ import { EffectComposer } from "./lib/EffectComposer.js";
 import { RenderPass } from "./lib/RenderPass.js";
 import { UnrealBloomPass } from "./lib/UnrealBloomPass.js";
 
-import { GUI } from "./lib/lil-gui.js";
-
 window.addEventListener(
   "DOMContentLoaded",
   () => {
@@ -91,7 +89,19 @@ class App3 {
     this.composer;
     this.renderPass;
     this.unrealBloomPass;
+
+    this.powerOn = true;
+    this.maxWingSpeed = 0.1;
+    this.wingSpeed = 0;
     this.swing = 0;
+    this.bodySwing = 0;
+    this.runaway = 0;
+    this.runawaySpeed = 0.1;
+
+    this.runawayBar = document.querySelector(".runawayInner");
+    this.neckSpeed = 100;
+    this.bodySpeed = 50;
+    this.break = 1000;
 
     this.isDown = false;
 
@@ -127,6 +137,30 @@ class App3 {
       },
       false
     );
+
+    document.querySelector(".powerBtn").addEventListener("click", (e) => {
+      e.preventDefault();
+      if (this.powerOn) {
+        this.powerOn = false;
+      } else {
+        this.powerOn = true;
+      }
+    });
+    document.querySelector(".lowBtn").addEventListener("click", (e) => {
+      e.preventDefault();
+      this.maxWingSpeed = 0.1;
+      this.runawaySpeed = 0.001;
+    });
+    document.querySelector(".middleBtn").addEventListener("click", (e) => {
+      e.preventDefault();
+      this.maxWingSpeed = 0.3;
+      this.runawaySpeed = 0.1;
+    });
+    document.querySelector(".highBtn").addEventListener("click", (e) => {
+      e.preventDefault();
+      this.maxWingSpeed = 0.5;
+      this.runawaySpeed = 0.5;
+    });
 
     // リサイズイベント
     window.addEventListener(
@@ -272,44 +306,36 @@ class App3 {
     this.unrealBloomPass.renderToScreen = true;
     this.renderer.toneMappingExposure = Math.pow(params.exposure, 4.0);
 
-    // ヘルパー
-    // axesHelper
-    // const axesBarLength = 5.0;
-    // this.axesHelper = new THREE.AxesHelper(axesBarLength);
-    // this.scene.add(this.axesHelper);
-
     // GUIデバッグ
-    this.gui = new GUI();
-    const lightGUIGroupe = this.gui.addFolder("Light");
-    lightGUIGroupe.add(this.ambientLight, "visible").name("AmbientLight");
+    // this.gui = new GUI();
+    // const lightGUIGroupe = this.gui.addFolder("Light");
+    // lightGUIGroupe.add(this.ambientLight, "visible").name("AmbientLight");
     // const helperGUIGroupe = this.gui.addFolder("Helper");
     // helperGUIGroupe.add(this.axesHelper, "visible").name("AxesHelper");
     // helperGUIGroupe;
 
-    const gui = new GUI();
+    // gui.add(params, "exposure", 0.1, 2).onChange((value) => {
+    //   this.renderer.toneMappingExposure = Math.pow(value, 4.0);
+    // });
 
-    gui.add(params, "exposure", 0.1, 2).onChange((value) => {
-      this.renderer.toneMappingExposure = Math.pow(value, 4.0);
-    });
+    // gui.add(params, "bloomThreshold", 0.0, 1.0).onChange((value) => {
+    //   this.unrealBloomPass.threshold = Number(value);
+    // });
 
-    gui.add(params, "bloomThreshold", 0.0, 1.0).onChange((value) => {
-      this.unrealBloomPass.threshold = Number(value);
-    });
+    // gui.add(params, "bloomStrength", 0.0, 3.0).onChange((value) => {
+    //   this.unrealBloomPass.strength = Number(value);
+    // });
 
-    gui.add(params, "bloomStrength", 0.0, 3.0).onChange((value) => {
-      this.unrealBloomPass.strength = Number(value);
-    });
+    // gui
+    //   .add(params, "bloomRadius", 0.0, 1.0)
+    //   .step(0.01)
+    //   .onChange((value) => {
+    //     this.unrealBloomPass.radius = Number(value);
+    //   });
 
-    gui
-      .add(params, "bloomRadius", 0.0, 1.0)
-      .step(0.01)
-      .onChange((value) => {
-        this.unrealBloomPass.radius = Number(value);
-      });
-
-    gui.add(this.modelBody.position, "x", 0, 10, 0.01).name("translateX");
-    gui.add(this.modelBody.position, "y", 0, 10, 0.01).name("translateY");
-    gui.add(this.modelBody.position, "z", 0, 10, 0.01).name("translateZ");
+    // gui.add(this.modelBody.position, "x", 0, 10, 0.01).name("translateX");
+    // gui.add(this.modelBody.position, "y", 0, 10, 0.01).name("translateY");
+    // gui.add(this.modelBody.position, "z", 0, 10, 0.01).name("translateZ");
   }
 
   /**
@@ -318,17 +344,68 @@ class App3 {
 
   render() {
     requestAnimationFrame(this.render);
+    // console.log(this.runaway);
 
-    if (this.isDown === true) {
-      this.box.rotation.y += 0.02;
+    if (this.powerOn) {
+      this.runaway += this.runawaySpeed;
+      if (this.runaway < 100) {
+        this.runawayBar.style.width = `${this.runaway}%`;
+        if (this.runaway > 50) {
+          this.runawayBar.style.backgroundColor = "#ffff00";
+        }
+        if (this.runaway > 80) {
+          this.runawayBar.style.backgroundColor = "#ff0000";
+        }
+
+        this.groupBody.rotation.y = Math.sin(++this.swing / this.neckSpeed);
+        this.wingSpeed += (this.maxWingSpeed - this.wingSpeed) / 50;
+        if (this.wingSpeed > this.maxWingSpeed * 0.99) {
+          this.wingSpeed = this.maxWingSpeed;
+        }
+        this.modelPanel.rotation.z += this.wingSpeed;
+      }
+    } else {
+      this.wingSpeed -= this.wingSpeed / 50;
+      if (this.wingSpeed < 0.01) {
+        this.wingSpeed = 0;
+      }
+      this.modelPanel.rotation.z += this.wingSpeed;
     }
-    this.modelPanel.rotation.z += 0.02;
 
-    this.groupBody.rotation.y = Math.sin(++this.swing / 100);
+    if (this.runaway < 100) {
+      this.runawayBar.style.width = `${this.runaway}%`;
+      if (this.runaway > 50) {
+        this.runawayBar.style.backgroundColor = "#ffff00";
+      }
+      if (this.runaway > 80) {
+        this.runawayBar.style.backgroundColor = "#ff0000";
+      }
+    } else {
+      this.break -= 5;
+      if (this.neckSpeed > 1) {
+        this.neckSpeed -= 0.5;
+      }
+      if (this.neckSpeed <= 1) {
+        this.neckSpeed = 1;
+      }
+      this.groupAll.position.x =
+        Math.sin((++this.bodySwing / this.bodySpeed) * 10) / 20;
+      this.groupAll.position.z =
+        Math.sin((++this.bodySwing / this.bodySpeed) * 10) / 20;
+      this.groupAll.rotation.z =
+        Math.sin(++this.bodySwing / this.neckSpeed) / 5;
+      this.groupAll.rotation.x =
+        Math.sin(++this.bodySwing / this.neckSpeed) / 50;
+      this.groupBody.rotation.y = Math.sin(++this.swing / this.neckSpeed);
+      if (this.break < 0) {
+        this.groupAll.position.y += 5;
+        this.groupAll.position.x += 5;
+        this.groupAll.position.z -= 5;
+      }
+    }
 
     this.controls.update();
 
-    // this.renderer.render(this.scene, this.camera);
     this.composer.render();
   }
 }
