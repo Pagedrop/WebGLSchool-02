@@ -112,32 +112,7 @@ class App3 {
      * イベント
      */
 
-    // キーイベント
-    window.addEventListener(
-      "keydown",
-      (keyEvent) => {
-        switch (keyEvent.key) {
-          case " ":
-            this.isDown = true;
-            break;
-          default:
-        }
-      },
-      false
-    );
-    window.addEventListener(
-      "keyup",
-      (keyEvent) => {
-        switch (keyEvent.key) {
-          case " ":
-            this.isDown = false;
-            break;
-          default:
-        }
-      },
-      false
-    );
-
+    // クリックイベント
     document.querySelector(".powerBtn").addEventListener("click", (e) => {
       e.preventDefault();
       if (this.powerOn) {
@@ -150,16 +125,25 @@ class App3 {
       e.preventDefault();
       this.maxWingSpeed = 0.1;
       this.runawaySpeed = 0.001;
+      if (!this.powerOn) {
+        this.powerOn = true;
+      }
     });
     document.querySelector(".middleBtn").addEventListener("click", (e) => {
       e.preventDefault();
       this.maxWingSpeed = 0.3;
       this.runawaySpeed = 0.1;
+      if (!this.powerOn) {
+        this.powerOn = true;
+      }
     });
     document.querySelector(".highBtn").addEventListener("click", (e) => {
       e.preventDefault();
       this.maxWingSpeed = 0.5;
       this.runawaySpeed = 0.5;
+      if (!this.powerOn) {
+        this.powerOn = true;
+      }
     });
 
     // リサイズイベント
@@ -247,10 +231,6 @@ class App3 {
       App3.AMBIENT_LIGHT_PARAM.intensity
     );
     this.scene.add(this.ambientLight);
-
-    // ポイントライト
-    const pointLight = new THREE.PointLight(0xffffff, 1);
-    // this.scene.add(pointLight);
 
     // ジオメトリ
     this.boxGeometry = new THREE.BoxGeometry(1.0, 1.0, 1.0);
