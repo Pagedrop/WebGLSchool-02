@@ -78,6 +78,9 @@ class App3 {
     this.material;
     this.boxGeometry;
     this.box;
+    this.starGeometry;
+    this.starMaterial;
+    this.star;
     this.controls;
     this.axesHelper;
     this.modelBase;
@@ -234,6 +237,34 @@ class App3 {
 
     // ジオメトリ
     this.boxGeometry = new THREE.BoxGeometry(1.0, 1.0, 1.0);
+    // パーティクル生成
+    const STAR_AREA = 1000;
+    const STAR_LENGTH = 1000;
+    const vertices = [];
+    for (let i = 0; i < STAR_LENGTH; i++) {
+      const x = STAR_AREA * (Math.random() - 0.5);
+      const y = STAR_AREA * (Math.random() - 0.5);
+      const z = STAR_AREA * (Math.random() - 0.5);
+
+      vertices.push(x, y, z);
+    }
+
+    this.starGeometry = new THREE.BufferGeometry();
+    this.starGeometry.setAttribute(
+      "position",
+      new THREE.Float32BufferAttribute(vertices, 3)
+    );
+
+    // マテリアル生成
+    this.starMaterial = new THREE.PointsMaterial({
+      // 一つ一つのサイズ
+      size: 1,
+      // 色
+      color: 0xffffff,
+    });
+
+    this.star = new THREE.Points(this.starGeometry, this.starMaterial);
+    this.scene.add(this.star);
 
     // マテリアル
     this.material = new THREE.MeshPhongMaterial(App3.MATERIAL_PARAM);
