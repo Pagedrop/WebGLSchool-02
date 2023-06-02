@@ -75,9 +75,6 @@ class App3 {
     this.camera;
     this.gui;
     this.ambientLight;
-    this.material;
-    this.boxGeometry;
-    this.box;
     this.starGeometry;
     this.starMaterial;
     this.star;
@@ -235,8 +232,6 @@ class App3 {
     );
     this.scene.add(this.ambientLight);
 
-    // ジオメトリ
-    this.boxGeometry = new THREE.BoxGeometry(1.0, 1.0, 1.0);
     // パーティクル生成
     const STAR_AREA = 1000;
     const STAR_LENGTH = 1000;
@@ -255,19 +250,13 @@ class App3 {
       new THREE.Float32BufferAttribute(vertices, 3)
     );
 
-    // マテリアル生成
     this.starMaterial = new THREE.PointsMaterial({
-      // 一つ一つのサイズ
       size: 1,
-      // 色
       color: 0xffffff,
     });
 
     this.star = new THREE.Points(this.starGeometry, this.starMaterial);
     this.scene.add(this.star);
-
-    // マテリアル
-    this.material = new THREE.MeshPhongMaterial(App3.MATERIAL_PARAM);
 
     this.groupAll = new THREE.Group();
     this.groupPanel = new THREE.Group();
@@ -416,7 +405,10 @@ class App3 {
       if (this.break === 0) {
         // TO DO
         // テキストひょうじさせようかどうか🤔
-        // はじめからボタン
+        setTimeout(() => {
+          document.querySelector(".end").classList.add("visible");
+          // はじめからボタン
+        }, 2000);
       }
     }
 
