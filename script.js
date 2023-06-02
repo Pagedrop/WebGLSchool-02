@@ -344,6 +344,7 @@ class App3 {
         this.modelPanel.rotation.z += this.wingSpeed;
       }
     } else {
+      this.runaway -= 0.01;
       this.wingSpeed -= this.wingSpeed / 50;
       if (this.wingSpeed < 0.01) {
         this.wingSpeed = 0;
@@ -381,10 +382,14 @@ class App3 {
         this.groupAll.position.x += 5;
         this.groupAll.position.z -= 5;
       }
+      if (this.break === 0) {
+        // TO DO
+        // テキストひょうじさせようかどうか🤔
+        // はじめからボタン
+      }
     }
 
     this.controls.update();
-
     this.composer.render();
   }
 }
