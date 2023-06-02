@@ -182,7 +182,6 @@ class App3 {
     const modelBase = "./assets/fun001-base.glb";
     const modelBody = "./assets/fun001-body.glb";
     const modelPanel = "./assets/fun001-panel.glb";
-    // const modelBase = "./assets/PrimaryIonDrive.glb";
     const loader = new GLTFLoader();
     this.modelBase = null;
     const modelLoader = (url) => {
