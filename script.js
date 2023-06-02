@@ -180,8 +180,8 @@ class App3 {
 
   load() {
     const modelBase = "./assets/fun001-base.glb";
-    const modelBody = "./assets/fun001-body-sub.glb";
-    const modelPanel = "./assets/fun001-panel-sub.glb";
+    const modelBody = "./assets/fun001-body.glb";
+    const modelPanel = "./assets/fun001-panel.glb";
     // const modelBase = "./assets/PrimaryIonDrive.glb";
     const loader = new GLTFLoader();
     this.modelBase = null;
